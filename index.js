@@ -72,8 +72,28 @@ app.get("/movies/read/by-title", (req,res)=>{
     res.status(200).json({status:200, data:movies.sort((a,b)=>(a.rating<b.rating?-1:1))})
 })
 
-app.get("/movies/update", (req,res)=>{
-    res.status(200).json({status:200, message:"update"})
+app.get("/movies/update/:id", (req,res)=>{
+    
+    let id = parseInt(req.params.id)
+
+    let title = req.query.title
+    let year = parseInt(req.query.year)
+    let rating = parseFloat(req.query.rating);
+
+        if(req.query.title){
+            movies[id-1].title = title
+        }
+        if(parseInt(req.query.year) && req.query.year.length == 4){
+            movies[id-1].year = year
+        }
+        if(req.query.rating!==undefined && req.query.rating >= 0 && req.query.rating <= 10){
+            movies[id-1].rating = rating
+        }
+
+ 
+    // movies.push(newMovie);
+    res.status(200).json(movies)
+    
 })
 app.get("/movies/delete/:id", (req,res)=>{
     let id = parseInt(req.params.id)
