@@ -26,8 +26,27 @@ app.get("/search",(req,res)=>{
     res.status(200).json({status:200, message:"ok", data:`${req.query.s}`}):
     res.status(500).json({status:500, error:true, message:"you have to provide a search"})
 })
-app.get("/movie/create", (req,res)=>{
-    res.status(200).json({status:200, message:"create"})
+app.get('/movies/add', (req,res)=>{
+
+    let title = req.query.title
+    let year = parseInt(req.query.year)
+    let rating = parseFloat(req.query.rating) || 4;
+    let newMovie;
+
+    if(!req.query.title || req.query.year.length !== 4){
+        res.status(403).json({status:403, error:true, message:'you cannot create a movie without providing a title and a year'})
+    } else
+    if(rating<0 || rating>10){
+        rating =4;
+    }
+
+    newMovie = {title:title, year:year, rating:rating}
+
+ 
+    movies.push(newMovie);
+    res.status(200).json(movies)
+    // console.log(movies)
+ 
 })
 
 app.get("/movies/read", (req,res)=>{
