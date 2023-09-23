@@ -17,7 +17,7 @@ app.get("/time",(req,res)=>{
 })
 app.get("/hello/:id?",(req,res)=>{
     let id = req.params.id
-    id?res.json({status:200, message:`Hello, ${id}`}):
+    id?res.status(200).json({status:200, message:`Hello, ${id}`}):
     res.status(200).json({status:200, message:"Hello!"})
 })
 
@@ -41,7 +41,14 @@ app.get("/movies/read/by-date", (req,res)=>{
 app.get("/movies/read/by-rating", (req,res)=>{
     res.status(200).json({status:200, data:movies.sort((a,b)=>(a.rating<b.rating?-1:1))})
 })
-
+app.get("/movies/read/id/:id",(req,res)=>{
+    let id = req.params.id
+    if(id > 0 && id <=movies.length){
+        res.status(200).json({status:200, data:movies[id-1]})
+    }
+    else 
+    res.status(404).json({status:404, error:true, message:`the movie ${id} does not exist`})
+})
 app.get("/movies/read/by-title", (req,res)=>{
     res.status(200).json({status:200, data:movies.sort((a,b)=>(a.rating<b.rating?-1:1))})
 })
