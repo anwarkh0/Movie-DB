@@ -75,8 +75,16 @@ app.get("/movies/read/by-title", (req,res)=>{
 app.get("/movies/update", (req,res)=>{
     res.status(200).json({status:200, message:"update"})
 })
-app.get("/movies/delete", (req,res)=>{
-    res.status(200).json({status:200, message:"delete"})
+app.get("/movies/delete/:id", (req,res)=>{
+    let id = parseInt(req.params.id)
+    if(!id || id < 1 || id >movies.length){
+        res.status(404).json({status:404, error:true, message:`the movie ${id} does not exist`})
+    }
+    else{
+
+        movies.splice(id-1, 1)
+    }
+    res.status(200).json(movies)
 })
 
 app.listen(3000)
