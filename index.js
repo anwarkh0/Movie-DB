@@ -1,5 +1,6 @@
 const express = require("express")
 const app = express()
+const mongoose = require("mongoose");
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
@@ -10,6 +11,37 @@ const movies = [
     { title: 'Brazil', year: 1985, rating: 8 },
     { title: 'الإرهاب والكباب‎', year: 1992, rating: 6.2 }
 ]
+
+//aIyhUkDwQNCrjrLb
+
+const url = 'mongodb+srv://anwarkhawle:aIyhUkDwQNCrjrLb@cluster0.hkc5khq.mongodb.net/?retryWrites=true&w=majority'
+//connect to mongoose
+mongoose.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+  const movieSchema = new mongoose.Schema({
+    title: {
+        type:String,
+        require:true
+    },
+    year: {
+        type: Number,
+        require: true
+
+    },
+    rating: {
+        type: Number,
+        require: true,
+        default: 4,
+        min: 0,
+        max: 10
+    }
+  })
+  const Movie = mongoose.model('Movie', movieSchema);
 app.get("/test", (req,res)=>{
     res.status(200).json({status:200, message:"ok"})
 })
@@ -164,5 +196,48 @@ app.delete("/movies/delete/:id", (req,res)=>{
     }
     res.status(200).json(movies)
 })
+app.post('/movies/adding', async (req,res) => {
+    try{
+        const movie = new Movie({
+            title : req.body.title,
+            year  : req.body.year,
+            rating: req.body.rating
+        });
+        const saveMovie = await movie.save();
+        res.json(saveMovie);
+    } 
+    catch (error) {
+        res.status(400).json({error: error.message})
+    }
+})
+app.put('/movies/up-date/:id', async (req, res) => {
+    let id = req.params.id
+    try{
+        await Movie.findByIdAndUpdate(id,  req.body , { new: true })
+    }
+
+    catch(error){
+        res.status(500).json({error: error})
+    }
+    })
+    app.delete('/movies/del/:id', async (req, res) => {
+        let id = req.params.id;
+        try{
+            await Movie.findByIdAndRemove(id)
+        }
+        catch(err){
+            res.status(500).json({error:err})
+        }
+    })
+    app.get('/movies', async (req, res) => {
+            try{
+            const all = await Movie.find()
+            res.status(200).send(all)
+
+        }
+        catch(err){
+            res.status(500).json({error:err})
+        }
+    })
 
 app.listen(3000)
