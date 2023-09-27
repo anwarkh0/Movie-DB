@@ -85,7 +85,7 @@ app.get('/movies/add', (req,res)=>{
  
 })
 
-app.get("/movies/read", (req,res)=>{
+app.get("/movies/read",authentication, (req,res)=>{
     res.status(200).json({status:200, data:movies})
 })
 
@@ -196,7 +196,7 @@ app.delete("/movies/delete/:id", (req,res)=>{
     }
     res.status(200).json(movies)
 })
-app.post('/movies/adding', async (req,res) => {
+app.post('/movies/adding', authentication, async (req,res) => {
     try{
         const movie = new Movie({
             title : req.body.title,
@@ -210,7 +210,7 @@ app.post('/movies/adding', async (req,res) => {
         res.status(400).json({error: error.message})
     }
 })
-app.put('/movies/up-date/:id', async (req, res) => {
+app.put('/movies/up-date/:id', authentication,  async (req, res) => {
     let id = req.params.id
     try{
         await Movie.findByIdAndUpdate(id,  req.body , { new: true })
@@ -220,7 +220,7 @@ app.put('/movies/up-date/:id', async (req, res) => {
         res.status(500).json({error: error})
     }
     })
-    app.delete('/movies/del/:id', async (req, res) => {
+    app.delete('/movies/del/:id', authentication, async (req, res) => {
         let id = req.params.id;
         try{
             await Movie.findByIdAndRemove(id)
@@ -229,7 +229,7 @@ app.put('/movies/up-date/:id', async (req, res) => {
             res.status(500).json({error:err})
         }
     })
-    app.get('/movies', async (req, res) => {
+    app.get('/movies',authentication, async (req, res) => {
             try{
             const all = await Movie.find()
             res.status(200).send(all)
@@ -239,5 +239,16 @@ app.put('/movies/up-date/:id', async (req, res) => {
             res.status(500).json({error:err})
         }
     })
+    const user = [{username:"ssss",password:"12"},{username:"fff",password:"1123"}]
+    function c  (req, res, next)  {
+        const {username,password} = req.headers;
+        const myuser = user.find(user => user.username === username && user.password === password)
+        if(myuser){
+            return next();
+        }
+        else{
+            res.json({message:"not authneticated"})
+        }
+    }
 
 app.listen(3000)
