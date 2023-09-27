@@ -1,5 +1,9 @@
 const express = require("express")
 const app = express()
+const bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.json())
+
 const movies = [
     { title: 'Jaws', year: 1975, rating: 8 },
     { title: 'Avatar', year: 2009, rating: 7.8 },
@@ -96,6 +100,60 @@ app.get("/movies/update/:id", (req,res)=>{
     
 })
 app.get("/movies/delete/:id", (req,res)=>{
+    let id = parseInt(req.params.id)
+    if(!id || id < 1 || id >movies.length){
+        res.status(404).json({status:404, error:true, message:`the movie ${id} does not exist`})
+    }
+    else{
+
+        movies.splice(id-1, 1)
+    }
+    res.status(200).json(movies)
+})
+app.post('/movies/add', (req,res)=>{
+
+    let title = req.body.title
+    let year = req.body.year
+    let rating = parseFloat(req.body.rating) || 4;
+    let newMovie;
+
+    if(!req.body.title || req.body.year.toString().length !== 4){
+        res.status(403).json({status:403, error:true, message:'you cannot create a movie without providing a title and a year'})
+    } else
+    if(rating<0 || rating>10){
+        rating =4;
+    }
+
+    newMovie = {title:title, year:year, rating:rating}
+
+ 
+    movies.push(newMovie);
+    res.status(200).json(movies)
+})
+app.put("/movies/update/:id", (req,res)=>{
+    
+    let id = parseInt(req.params.id)
+
+    let title = req.body.title
+    let year = parseInt(req.body.year)
+    let rating = parseFloat(req.body.rating);
+
+        if(req.body.title){
+            movies[id-1].title = title
+        }
+        if(parseInt(req.body.year) && req.body.year.length == 4){
+            movies[id-1].year = year
+        }
+        if(req.body.rating!==undefined && req.body.rating >= 0 && req.body.rating <= 10){
+            movies[id-1].rating = rating
+        }
+
+ 
+    // movies.push(newMovie);
+    res.status(200).json(movies)
+    
+})
+app.delete("/movies/delete/:id", (req,res)=>{
     let id = parseInt(req.params.id)
     if(!id || id < 1 || id >movies.length){
         res.status(404).json({status:404, error:true, message:`the movie ${id} does not exist`})
